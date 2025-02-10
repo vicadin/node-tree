@@ -2,48 +2,34 @@ import axios from "axios";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-export const fetchTree = async (treeName) => {
+const makeRequest = async (method, endpoint, params = null, data = null) => {
   try {
-    const response = await axios.get(`${API_URL}.get?treeName=${treeName}`);
+    const response = await axios({
+      method,
+      url: `${API_URL}${endpoint}`,
+      params,
+      data,
+    });
     return response.data;
   } catch (error) {
-    console.error("Error fetching tree:", error);
-    throw error;
+    const errorMessage = error.response?.data?.data?.message || "Unknown error occurred";
+    console.error(`Error in ${method} request to ${endpoint}: ${errorMessage}`);
+    throw new Error(errorMessage);
   }
+};
+
+export const fetchTree = async (treeName) => {
+  return makeRequest("get", ".get", { treeName });
 };
 
 export const addNode = async (treeName, parentNodeId, nodeName) => {
-  try {
-    const response = await axios.post(`${API_URL}.node.create`, null, {
-      params: { treeName, parentNodeId, nodeName },
-    });
-    return response.data;
-  } catch (error) {
-    console.error("Error adding node:", error);
-    throw error;
-  }
+  return makeRequest("post", ".node.create", { treeName, parentNodeId, nodeName });
 };
 
 export const editNode = async (treeName, nodeId, newNodeName) => {
-  try {
-    const response = await axios.post(`${API_URL}.node.rename`, null, {
-      params: { treeName, nodeId, newNodeName },
-    });
-    return response.data;
-  } catch (error) {
-    console.error("Error editing node:", error);
-    throw error;
-  }
+  return makeRequest("post", ".node.rename", { treeName, nodeId, newNodeName });
 };
 
 export const deleteNode = async (treeName, nodeId) => {
-  try {
-    const response = await axios.post(`${API_URL}.node.delete`, null, {
-      params: { treeName, nodeId },
-    });
-    return response.data;
-  } catch (error) {
-    console.error("Error deleting node:", error);
-    throw error;
-  }
+  return makeRequest("post", ".node.delete", { treeName, nodeId });
 };

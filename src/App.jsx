@@ -30,19 +30,18 @@ const App = () => {
     setDeleteModalOpen(true);
   };
 
-  const closeModal = () => {
-    setModalOpen(false);
-    setCurrentNode(null);
-    setParentNodeId(null);
-    setNewNodeName("");
-    setIsEditing(false);
+  const closeModal = (type) => {
+    if (type === "delete") {
+      setDeleteModalOpen(false);
+      setNodeToDelete(null);
+    } else {
+      setModalOpen(false);
+      setCurrentNode(null);
+      setParentNodeId(null);
+      setNewNodeName("");
+      setIsEditing(false);
+    }
   };
-
-  const closeDeleteModal = () => {
-    setDeleteModalOpen(false);
-    setNodeToDelete(null);
-  };
-
   const confirmDelete = () => {
     if (nodeToDelete) {
       handleDeleteNode(nodeToDelete.id);
@@ -51,11 +50,9 @@ const App = () => {
   };
 
   const handleSubmit = () => {
-    if (isEditing) {
-      handleEditNode(currentNode.id, newNodeName);
-    } else {
-      handleAddNode(parentNodeId, newNodeName);
-    }
+    isEditing
+      ? handleEditNode(currentNode.id, newNodeName)
+      : handleAddNode(parentNodeId, newNodeName);
     closeModal();
   };
 
@@ -92,7 +89,7 @@ const App = () => {
 
           <AddEditModal
             isOpen={modalOpen}
-            onClose={closeModal}
+            onClose={() => closeModal("edit")}
             isEditing={isEditing}
             onSubmit={handleSubmit}
             nodeName={newNodeName}
@@ -101,7 +98,7 @@ const App = () => {
 
           <DeleteModal
             isOpen={deleteModalOpen}
-            onClose={closeDeleteModal}
+            onClose={() => closeModal("delete")}
             onConfirm={confirmDelete}
             nodeName={nodeToDelete?.name}
           />

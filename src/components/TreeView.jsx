@@ -13,9 +13,6 @@ export const TreeView = ({ treeData, onEdit, onDelete, onAdd }) => {
         key={node.id}
         itemId={node.id}
         sx={{
-          "& .MuiTreeItem-content": {
-            backgroundColor: "transparent !important",
-          },
           "& .MuiTreeItem-content.Mui-selected": {
             backgroundColor: "transparent !important",
           },
@@ -26,7 +23,7 @@ export const TreeView = ({ treeData, onEdit, onDelete, onAdd }) => {
             alignItems="center"
             onMouseEnter={() => setHoveredNode(node)}
             onMouseLeave={() => setHoveredNode(null)}
-            sx={{ height: 10 }}
+            sx={{ height: 18 }}
           >
             <span>{node.name}</span>
             {hoveredNode?.id === node.id && (
@@ -65,9 +62,6 @@ export const TreeView = ({ treeData, onEdit, onDelete, onAdd }) => {
             </Box>
           }
           sx={{
-            "& .MuiTreeItem-content": {
-              backgroundColor: "transparent !important",
-            },
             "& .MuiTreeItem-content.Mui-selected": {
               backgroundColor: "transparent !important",
             },

@@ -1,28 +1,23 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { fetchTree, addNode, editNode, deleteNode } from "../api/api";
 import { v4 as uuidv4 } from "uuid";
 
 const getTreeName = () => {
-  let storedTreeName = localStorage.getItem("TREE_NAME");
-  if (!storedTreeName) {
-    storedTreeName = uuidv4();
-    localStorage.setItem("TREE_NAME", storedTreeName);
-  }
+  const storedTreeName = localStorage.getItem("TREE_NAME") || uuidv4();
+  localStorage.setItem("TREE_NAME", storedTreeName);
   return storedTreeName;
 };
 
-const TREE_NAME = getTreeName();
-
 export const useTree = () => {
+  const TREE_NAME = useMemo(getTreeName, []);
   const [treeData, setTreeData] = useState(null);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const loadTree = async () => {
+  const withLoading = async (callback) => {
     try {
       setIsLoading(true);
-      const data = await fetchTree(TREE_NAME);
-      setTreeData(data);
+      await callback();
     } catch (error) {
       setError(error.message);
     } finally {
@@ -30,41 +25,16 @@ export const useTree = () => {
     }
   };
 
-  const handleAddNode = async (parentId, nodeName) => {
-    try {
-      setIsLoading(true);
-      await addNode(TREE_NAME, parentId, nodeName);
-      await loadTree();
-    } catch (error) {
-      setError(error.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const loadTree = () => withLoading(() => fetchTree(TREE_NAME).then(setTreeData));
 
-  const handleEditNode = async (nodeId, newNodeName) => {
-    try {
-      setIsLoading(true);
-      await editNode(TREE_NAME, nodeId, newNodeName);
-      await loadTree();
-    } catch (error) {
-      setError(error.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const handleAddNode = (parentId, nodeName) =>
+    withLoading(() => addNode(TREE_NAME, parentId, nodeName).then(loadTree));
 
-  const handleDeleteNode = async (nodeId) => {
-    try {
-      setIsLoading(true);
-      await deleteNode(TREE_NAME, nodeId);
-      await loadTree();
-    } catch (error) {
-      setError(error.response?.data?.data?.message || "Failed to delete node.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const handleEditNode = (nodeId, newNodeName) =>
+    withLoading(() => editNode(TREE_NAME, nodeId, newNodeName).then(loadTree));
+
+  const handleDeleteNode = (nodeId) =>
+    withLoading(() => deleteNode(TREE_NAME, nodeId).then(loadTree));
 
   useEffect(() => {
     loadTree();
