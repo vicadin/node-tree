@@ -46,7 +46,7 @@ const App = () => {
     if (nodeToDelete) {
       handleDeleteNode(nodeToDelete.id);
     }
-    closeDeleteModal();
+    closeModal("delete");
   };
 
   const handleSubmit = () => {
